@@ -1,27 +1,31 @@
 package hk.edu.polyu.comp.comp2021.clevis.model;
 
-public class Shape {
-    private String name;
-    private int x;
-    private int y;
-    private BoundingBox boundingBox;
-    private int z;
+public abstract class Shape {
 
-    public Shape(String name, int x, int y) {
+    protected String name;
+    protected BoundingBox boundingBox;
+    protected int z;
+    public static int currentZ = 0;
+
+    public Shape(String name) {
         this.name = name;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.z = ++currentZ;
+        updateBoundingBox();
     }
-    public Shape(String name, int x, int y, BoundingBox boundingBox){
-        this(name,x,y);
-        this.boundingBox = boundingBox;
-    }
+
     public String getName() {return name;}
-    public int getX() {return x;}
-    public int getY() {return y;}
-    public BoundingBox getBoundingBox() {return boundingBox;}
+    public BoundingBox getBoundingBox() {
+        updateBoundingBox();
+        return boundingBox;
+    }
+    protected abstract void updateBoundingBox();
+
+    public BoundingBox getBoundingBox(BoundingBox boundingBox){return this.boundingBox;}
     public String outputBoundingBox(){
         return boundingBox.getX() + " " + boundingBox.getY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight();
     }
+
+    protected abstract boolean covers(double x, double y);
+    protected abstract void move(double dx,double dy);
+    protected abstract String list();
 }
