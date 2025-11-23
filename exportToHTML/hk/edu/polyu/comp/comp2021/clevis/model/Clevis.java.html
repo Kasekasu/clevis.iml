@@ -1,0 +1,484 @@
+<html>
+<head>
+<title>Clevis.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #67a37c; font-style: italic;}
+.s5 { color: #6aab73;}
+.s6 { color: #7a7e85;}
+.s7 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Clevis.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">hk</span><span class="s2">.</span><span class="s1">edu</span><span class="s2">.</span><span class="s1">polyu</span><span class="s2">.</span><span class="s1">comp</span><span class="s2">.</span><span class="s1">comp2021</span><span class="s2">.</span><span class="s1">clevis</span><span class="s2">.</span><span class="s1">model</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">IOException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">ArrayList</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">List</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Scanner</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">HashMap</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Stack</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* Command Line Vector Graphics Software (Clevis) main controller class.</span>
+ <span class="s3">* Provides comprehensive functionality for creating, manipulating, and managing</span>
+ <span class="s3">* vector graphics through an interactive command-line interface. Implements</span>
+ <span class="s3">* the MVC pattern as the central controller coordinating user input, shape</span>
+ <span class="s3">* management, and output operations.</span>
+ <span class="s3">*</span>
+ <span class="s3">* </span><span class="s4">@author </span><span class="s3">Group03 COMP2021 (November 23, 25)</span>
+ <span class="s3">*/</span>
+<span class="s0">public class </span><span class="s1">Clevis </span><span class="s2">{</span>
+    <span class="s0">private </span><span class="s1">HashMap</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">,</span><span class="s1">Shape</span><span class="s2">&gt; </span><span class="s1">shapesHashMap</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">String txtPath</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">String htmlPath</span><span class="s2">;</span>
+
+    <span class="s0">private </span><span class="s1">Stack</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt; </span><span class="s1">undoStack </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Stack</span><span class="s2">&lt;&gt;();</span>
+    <span class="s0">private </span><span class="s1">Stack</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt; </span><span class="s1">redoStack </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Stack</span><span class="s2">&lt;&gt;();</span>
+    <span class="s0">private </span><span class="s1">HashMap</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">, </span><span class="s1">Shape</span><span class="s2">&gt; </span><span class="s1">deletedShapes </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HashMap</span><span class="s2">&lt;&gt;();</span>
+    <span class="s3">/**</span>
+     <span class="s3">* Default constructor initializes an empty shape registry.</span>
+     <span class="s3">* Creates a new HashMap for storing shapes by their unique identifiers.</span>
+     <span class="s3">*/</span>
+    <span class="s0">public </span><span class="s1">Clevis</span><span class="s2">(){</span>
+        <span class="s1">setShapesHashMap</span><span class="s2">(</span><span class="s0">new </span><span class="s1">HashMap</span><span class="s2">&lt;&gt;());</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Parameterized constructor with log file path specification.</span>
+     <span class="s3">* Initializes the shape registry and configures logging destinations</span>
+     <span class="s3">* for session command history.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@param </span><span class="s3">txtPath filesystem path for plain text command logging</span>
+     <span class="s3">* </span><span class="s4">@param </span><span class="s3">htmlPath filesystem path for HTML formatted command logging</span>
+     <span class="s3">*/</span>
+    <span class="s0">public </span><span class="s1">Clevis</span><span class="s2">(</span><span class="s1">String txtPath</span><span class="s2">, </span><span class="s1">String htmlPath</span><span class="s2">){</span>
+        <span class="s0">this</span><span class="s2">();</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">setTxtPath</span><span class="s2">(</span><span class="s1">txtPath</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">setHtmlPath</span><span class="s2">(</span><span class="s1">htmlPath</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Main execution loop for the Clevis application.</span>
+     <span class="s3">* Processes user commands interactively until termination, providing</span>
+     <span class="s3">* real-time feedback and comprehensive error handling. Manages the</span>
+     <span class="s3">* complete lifecycle of vector graphics creation and manipulation.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@throws </span><span class="s3">IOException if log file initialization or writing fails</span>
+     <span class="s3">*/</span>
+	<span class="s0">public void </span><span class="s1">run</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">IOException </span><span class="s2">{</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Welcome to clevis&quot;</span><span class="s2">);</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Please type 'quit' to exit the program&quot;</span><span class="s2">);</span>
+        <span class="s1">ClevisLogger log </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ClevisLogger</span><span class="s2">(</span><span class="s1">getTxtPath</span><span class="s2">(), </span><span class="s1">getHtmlPath</span><span class="s2">());</span>
+        <span class="s0">while</span><span class="s2">(</span><span class="s0">true</span><span class="s2">){</span>
+            <span class="s1">Scanner input </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Scanner</span><span class="s2">(</span><span class="s1">System</span><span class="s2">.</span><span class="s1">in</span><span class="s2">);</span>
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">print</span><span class="s2">(</span><span class="s5">&quot;Enter command for graphic creation: &quot;</span><span class="s2">);</span>
+            <span class="s1">String command </span><span class="s2">= </span><span class="s1">input</span><span class="s2">.</span><span class="s1">nextLine</span><span class="s2">();</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">command</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">()) </span><span class="s0">continue</span><span class="s2">;</span>
+            <span class="s1">log</span><span class="s2">.</span><span class="s1">log</span><span class="s2">(</span><span class="s1">command</span><span class="s2">);</span>
+            <span class="s1">String</span><span class="s2">[] </span><span class="s1">c </span><span class="s2">= </span><span class="s1">command</span><span class="s2">.</span><span class="s1">split</span><span class="s2">(</span><span class="s5">&quot; &quot;</span><span class="s2">); </span><span class="s6">// &quot;commands&quot;, used &quot;c&quot; for easier reading</span>
+            <span class="s1">String shape </span><span class="s2">= </span><span class="s1">c</span><span class="s2">[</span><span class="s7">0</span><span class="s2">].</span><span class="s1">toLowerCase</span><span class="s2">();</span>
+            <span class="s0">switch </span><span class="s2">(</span><span class="s1">shape</span><span class="s2">){</span>
+                <span class="s0">case </span><span class="s5">&quot;rectangle&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">6</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Shape with same name already exists, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">Rectangle rec1 </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Rectangle</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">5</span><span class="s2">]));</span>
+                    <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">put</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">rec1</span><span class="s2">);</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Successfully added rectangle&quot;</span><span class="s2">);</span>
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;rectangle &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">5</span><span class="s2">]);</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;line&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">6</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Shape with same name already exists, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">Line line1 </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Line</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">5</span><span class="s2">]));</span>
+                    <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">put</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">line1</span><span class="s2">);</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Successfully added line&quot;</span><span class="s2">);</span>
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;line &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">5</span><span class="s2">]);</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;circle&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">5</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Shape with same name already exists, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">Circle circle </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Circle</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]));</span>
+                    <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">put</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">circle</span><span class="s2">);</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Successfully added circle&quot;</span><span class="s2">);</span>
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;circle &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]);</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;square&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">5</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Shape with same name already exists, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">Square square </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Square</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]),</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]));</span>
+                    <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">put</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">],</span><span class="s1">square</span><span class="s2">);</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Successfully added square&quot;</span><span class="s2">);</span>
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;square &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]);</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;group&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">2</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Shape with same name already exists, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">3</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Please enter shapes to group&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">Shape</span><span class="s2">[] </span><span class="s1">shapes </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Shape</span><span class="s2">[</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length</span><span class="s2">-</span><span class="s7">2</span><span class="s2">];</span>
+                    <span class="s0">boolean </span><span class="s1">hasError </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+                    <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s7">2</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">c</span><span class="s2">.</span><span class="s1">length</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++) {</span>
+                        <span class="s1">Shape tempShape </span><span class="s2">= </span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s1">i</span><span class="s2">]);</span>
+                        <span class="s0">if</span><span class="s2">(</span><span class="s1">tempShape </span><span class="s2">== </span><span class="s0">null</span><span class="s2">){</span>
+                            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Error: Shape \{</span><span class="s1">c</span><span class="s2">[</span><span class="s1">i</span><span class="s2">]</span><span class="s5">} not found&quot;</span><span class="s2">);</span>
+                            <span class="s1">hasError </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s2">}</span>
+                        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">j </span><span class="s2">= </span><span class="s1">i </span><span class="s2">+ </span><span class="s7">1</span><span class="s2">; </span><span class="s1">j </span><span class="s2">&lt; </span><span class="s1">c</span><span class="s2">.</span><span class="s1">length</span><span class="s2">; </span><span class="s1">j</span><span class="s2">++) {</span>
+                            <span class="s0">if </span><span class="s2">(</span><span class="s1">tempShape</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">().</span><span class="s1">equals</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s1">j</span><span class="s2">])) {</span>
+                                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Error: Duplicate shape name '\{</span><span class="s1">tempShape</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">()</span><span class="s5">}' in group command&quot;</span><span class="s2">);</span>
+                                <span class="s1">hasError </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                                <span class="s0">break</span><span class="s2">;</span>
+                            <span class="s2">}</span>
+                        <span class="s2">}</span>
+                        <span class="s0">if </span><span class="s2">(!</span><span class="s1">hasError</span><span class="s2">) {</span>
+                            <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s1">i</span><span class="s2">]);</span>
+                            <span class="s1">shapes</span><span class="s2">[</span><span class="s1">i </span><span class="s2">- </span><span class="s7">2</span><span class="s2">] = </span><span class="s1">tempShape</span><span class="s2">;</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">hasError</span><span class="s2">) {</span>
+                        <span class="s1">ShapeGroup newGroup </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ShapeGroup</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">shapes</span><span class="s2">);</span>
+                        <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">put</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">newGroup</span><span class="s2">);</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Successfully created group \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]</span><span class="s5">}&quot;</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">hasError</span><span class="s2">) {</span>
+                        <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;group &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                        <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;ungroup&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">2</span><span class="s2">){</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])){</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Group not found please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">ShapeGroup group </span><span class="s2">= (</span><span class="s1">ShapeGroup</span><span class="s2">) </span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                    <span class="s0">for </span><span class="s2">(</span><span class="s1">Shape childShape </span><span class="s2">: </span><span class="s1">group</span><span class="s2">.</span><span class="s1">getShapes</span><span class="s2">()){</span>
+                        <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">put</span><span class="s2">(</span><span class="s1">childShape</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">(),</span><span class="s1">childShape</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                    <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;ungroup &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;delete&quot;</span><span class="s2">:</span>
+                    <span class="s0">if</span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">2</span><span class="s2">){</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Error: Shape \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]</span><span class="s5">} not found&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">Shape shapeToDelete </span><span class="s2">= </span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                    <span class="s1">deletedShapes</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">shapeToDelete</span><span class="s2">);</span>
+
+                    <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;delete &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Successfully removed shape&quot;</span><span class="s2">);</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;boundingbox&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">2</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Error: Shape \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]</span><span class="s5">} not found&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]).</span><span class="s1">outputBoundingBox</span><span class="s2">();</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;move&quot;</span><span class="s2">:</span>
+                    <span class="s0">if  </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">4</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Error: Shape with name \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]</span><span class="s5">} not found&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">Shape moveShape </span><span class="s2">=  </span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                    <span class="s0">double </span><span class="s1">moveX  </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]);</span>
+                    <span class="s0">double </span><span class="s1">moveY  </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]);</span>
+                    <span class="s1">moveShape</span><span class="s2">.</span><span class="s1">move</span><span class="s2">(</span><span class="s1">moveX</span><span class="s2">,</span><span class="s1">moveY</span><span class="s2">);</span>
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s5">&quot;move &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">] + </span><span class="s5">&quot; &quot; </span><span class="s2">+ </span><span class="s1">c</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]);</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;shapeAt&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">3</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">double </span><span class="s1">x </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                    <span class="s0">double </span><span class="s1">y </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]);</span>
+                    <span class="s1">Shape res </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+                    <span class="s0">for </span><span class="s2">(</span><span class="s1">Shape s </span><span class="s2">: </span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">values</span><span class="s2">()){</span>
+                        <span class="s0">if </span><span class="s2">(</span><span class="s1">s</span><span class="s2">.</span><span class="s1">covers</span><span class="s2">(</span><span class="s1">x</span><span class="s2">,</span><span class="s1">y</span><span class="s2">)){</span>
+                            <span class="s0">if </span><span class="s2">(</span><span class="s1">res </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">s</span><span class="s2">.</span><span class="s1">getZ</span><span class="s2">() &gt; </span><span class="s1">res</span><span class="s2">.</span><span class="s1">getZ</span><span class="s2">()){</span>
+                                <span class="s1">res </span><span class="s2">= </span><span class="s1">s</span><span class="s2">;</span>
+                            <span class="s2">}</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">res </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) </span><span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">res</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">());</span>
+                    <span class="s0">else </span><span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Error: No shape covering \{</span><span class="s1">x</span><span class="s5">} \{</span><span class="s1">y</span><span class="s5">} found&quot;</span><span class="s2">);</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;intersect&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">3</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                    <span class="s1">String n1 </span><span class="s2">= </span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">n2 </span><span class="s2">= </span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">];</span>
+                    <span class="s1">Shape shape1 </span><span class="s2">= </span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">n1</span><span class="s2">);</span>
+                    <span class="s1">Shape shape2 </span><span class="s2">= </span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">n2</span><span class="s2">);</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">shape1 </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">shape2 </span><span class="s2">== </span><span class="s0">null</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;Error: Shape \{</span><span class="s1">n1</span><span class="s5">} or \{</span><span class="s1">n2</span><span class="s5">} not found&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">boolean </span><span class="s1">intersects </span><span class="s2">= </span><span class="s1">shape1</span><span class="s2">.</span><span class="s1">getBoundingBox</span><span class="s2">().</span><span class="s1">overlaps</span><span class="s2">(</span><span class="s1">shape2</span><span class="s2">.</span><span class="s1">getBoundingBox</span><span class="s2">());</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">intersects</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;The shape \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]</span><span class="s5">}and \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]</span><span class="s5">} does not intersect&quot;</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                    <span class="s0">else </span><span class="s2">{</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">STR</span><span class="s2">.</span><span class="s5">&quot;The shape \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]</span><span class="s5">}and \{</span><span class="s1">c</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]</span><span class="s5">} does intersect&quot;</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;list&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">c</span><span class="s2">.</span><span class="s1">length </span><span class="s2">&lt; </span><span class="s7">2</span><span class="s2">) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid number of inputs, please try again&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">containsKey</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">])) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Error: Shape &quot;</span><span class="s2">+</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]+</span><span class="s5">&quot; not found&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s1">c</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]).</span><span class="s1">list</span><span class="s2">());</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;listAll&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">isEmpty</span><span class="s2">()) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;No shapes to display, please create shapes&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+
+                    <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Shape</span><span class="s2">&gt; </span><span class="s1">allShapes </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ArrayList</span><span class="s2">&lt;&gt;(</span><span class="s1">getShapesHashMap</span><span class="s2">().</span><span class="s1">values</span><span class="s2">());</span>
+                    <span class="s1">allShapes</span><span class="s2">.</span><span class="s1">sort</span><span class="s2">((</span><span class="s1">a</span><span class="s2">, </span><span class="s1">b</span><span class="s2">) </span><span class="s1">-&gt; b</span><span class="s2">.</span><span class="s1">getZ</span><span class="s2">() - </span><span class="s1">a</span><span class="s2">.</span><span class="s1">getZ</span><span class="s2">());</span>
+
+                    <span class="s0">for </span><span class="s2">(</span><span class="s1">Shape s </span><span class="s2">: </span><span class="s1">allShapes</span><span class="s2">) {</span>
+                        <span class="s0">if </span><span class="s2">(</span><span class="s1">s </span><span class="s0">instanceof </span><span class="s1">ShapeGroup</span><span class="s2">) {</span>
+                            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">s</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">() + </span><span class="s5">&quot; (Group):&quot;</span><span class="s2">);</span>
+                            <span class="s1">ShapeGroup shapeGroup </span><span class="s2">= (</span><span class="s1">ShapeGroup</span><span class="s2">) </span><span class="s1">s</span><span class="s2">;</span>
+                            <span class="s0">for </span><span class="s2">(</span><span class="s1">Shape child </span><span class="s2">: </span><span class="s1">shapeGroup</span><span class="s2">.</span><span class="s1">getShapes</span><span class="s2">()) {</span>
+                                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;  &quot; </span><span class="s2">+ </span><span class="s1">child</span><span class="s2">.</span><span class="s1">list</span><span class="s2">());</span>
+                            <span class="s2">}</span>
+                        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">s</span><span class="s2">.</span><span class="s1">list</span><span class="s2">());</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;undo&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">undoStack</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">()) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;No action to undo!&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">String lastAction </span><span class="s2">= </span><span class="s1">undoStack</span><span class="s2">.</span><span class="s1">pop</span><span class="s2">();</span>
+                    <span class="s1">redoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s1">lastAction</span><span class="s2">);</span>
+
+                    <span class="s1">String</span><span class="s2">[] </span><span class="s1">action </span><span class="s2">= </span><span class="s1">lastAction</span><span class="s2">.</span><span class="s1">split</span><span class="s2">(</span><span class="s5">&quot; &quot;</span><span class="s2">);</span>
+                    <span class="s0">switch</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">0</span><span class="s2">]){</span>
+                        <span class="s0">case </span><span class="s5">&quot;rectangle&quot;</span><span class="s2">:</span>
+                        <span class="s0">case </span><span class="s5">&quot;line&quot;</span><span class="s2">:</span>
+                        <span class="s0">case </span><span class="s5">&quot;circle&quot;</span><span class="s2">:</span>
+                        <span class="s0">case </span><span class="s5">&quot;square&quot;</span><span class="s2">:</span>
+                            <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Undo successful&quot;</span><span class="s2">);</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+
+                        <span class="s0">case </span><span class="s5">&quot;move&quot;</span><span class="s2">:</span>
+                            <span class="s1">Shape shape </span><span class="s2">= </span><span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                            <span class="s0">if </span><span class="s2">(</span><span class="s1">shape </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+                                <span class="s1">shape</span><span class="s2">.</span><span class="s1">move</span><span class="s2">(-</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]), -</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]));</span>
+                                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Undo successful&quot;</span><span class="s2">);</span>
+                            <span class="s2">}</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+
+                        <span class="s0">case </span><span class="s5">&quot;delete&quot;</span><span class="s2">:</span>
+                            <span class="s1">Shape restored </span><span class="s2">= </span><span class="s1">deletedShapes</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                            <span class="s0">if </span><span class="s2">(</span><span class="s1">restored </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+                                <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">restored</span><span class="s2">);</span>
+                                <span class="s1">deletedShapes</span><span class="s2">.</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Undo successful&quot;</span><span class="s2">);</span>
+                            <span class="s2">}</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+
+                        <span class="s0">case </span><span class="s5">&quot;group&quot;</span><span class="s2">:</span>
+                            <span class="s1">Shape group </span><span class="s2">= </span><span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                            <span class="s0">if </span><span class="s2">(</span><span class="s1">group </span><span class="s0">instanceof </span><span class="s1">ShapeGroup</span><span class="s2">) {</span>
+                                <span class="s0">for </span><span class="s2">(</span><span class="s1">Shape child </span><span class="s2">: ((</span><span class="s1">ShapeGroup</span><span class="s2">) </span><span class="s1">group</span><span class="s2">).</span><span class="s1">getShapes</span><span class="s2">()) {</span>
+                                    <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">child</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">(), </span><span class="s1">child</span><span class="s2">);</span>
+                                <span class="s2">}</span>
+                                <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">action</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Undo successful&quot;</span><span class="s2">);</span>
+                            <span class="s2">}</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+
+                        <span class="s0">case </span><span class="s5">&quot;ungroup&quot;</span><span class="s2">:</span>
+                            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Undo successful&quot;</span><span class="s2">);</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+
+                <span class="s0">case </span><span class="s5">&quot;redo&quot;</span><span class="s2">:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">redoStack</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">()) {</span>
+                        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;No action to redo!&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+
+                    <span class="s1">String redoAction </span><span class="s2">= </span><span class="s1">redoStack</span><span class="s2">.</span><span class="s1">pop</span><span class="s2">();</span>
+                    <span class="s1">undoStack</span><span class="s2">.</span><span class="s1">push</span><span class="s2">(</span><span class="s1">redoAction</span><span class="s2">);</span>
+
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Redo successful&quot;</span><span class="s2">);</span>
+
+                    <span class="s1">String</span><span class="s2">[] </span><span class="s1">redoParts </span><span class="s2">= </span><span class="s1">redoAction</span><span class="s2">.</span><span class="s1">split</span><span class="s2">(</span><span class="s5">&quot; &quot;</span><span class="s2">);</span>
+                    <span class="s0">switch</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">0</span><span class="s2">]){</span>
+                        <span class="s0">case </span><span class="s5">&quot;rectangle&quot;</span><span class="s2">:</span>
+                            <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s0">new </span><span class="s1">Rectangle</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">5</span><span class="s2">])));</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s0">case </span><span class="s5">&quot;line&quot;</span><span class="s2">:</span>
+                            <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s0">new </span><span class="s1">Line</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">4</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">5</span><span class="s2">])));</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s0">case </span><span class="s5">&quot;circle&quot;</span><span class="s2">:</span>
+                            <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s0">new </span><span class="s1">Circle</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">4</span><span class="s2">])));</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s0">case </span><span class="s5">&quot;square&quot;</span><span class="s2">:</span>
+                            <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s0">new </span><span class="s1">Square</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">4</span><span class="s2">])));</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s0">case </span><span class="s5">&quot;move&quot;</span><span class="s2">:</span>
+                            <span class="s1">Shape s </span><span class="s2">= </span><span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                            <span class="s0">if </span><span class="s2">(</span><span class="s1">s</span><span class="s2">!=</span><span class="s0">null</span><span class="s2">) </span><span class="s1">s</span><span class="s2">.</span><span class="s1">move</span><span class="s2">(</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">2</span><span class="s2">]), </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">3</span><span class="s2">]));</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s0">case </span><span class="s5">&quot;delete&quot;</span><span class="s2">:</span>
+                            <span class="s1">deletedShapes</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">], </span><span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]));</span>
+                            <span class="s1">shapesHashMap</span><span class="s2">.</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">redoParts</span><span class="s2">[</span><span class="s7">1</span><span class="s2">]);</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s0">case </span><span class="s5">&quot;group&quot;</span><span class="s2">:</span>
+                        <span class="s0">case </span><span class="s5">&quot;ungroup&quot;</span><span class="s2">:</span>
+                            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Redo unsuccessful&quot;</span><span class="s2">);</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s5">&quot;quit&quot;</span><span class="s2">:</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Thank you for using CLEVIS&quot;</span><span class="s2">);</span>
+                    <span class="s1">log</span><span class="s2">.</span><span class="s1">close</span><span class="s2">();</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">exit</span><span class="s2">(</span><span class="s7">0</span><span class="s2">);</span>
+                <span class="s0">default</span><span class="s2">:</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Invalid shape&quot;</span><span class="s2">);</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Returns the registry of all shapes managed by this Clevis instance.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@return </span><span class="s3">HashMap containing all shapes with their names as keys</span>
+     <span class="s3">*/</span>
+    <span class="s0">public </span><span class="s1">HashMap</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">, </span><span class="s1">Shape</span><span class="s2">&gt; </span><span class="s1">getShapesHashMap</span><span class="s2">() {</span>
+        <span class="s0">return </span><span class="s1">shapesHashMap</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Sets the shape registry for this Clevis instance.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@param </span><span class="s3">shapesHashMap the new HashMap to use for shape storage</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">setShapesHashMap</span><span class="s2">(</span><span class="s1">HashMap</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">, </span><span class="s1">Shape</span><span class="s2">&gt; </span><span class="s1">shapesHashMap</span><span class="s2">) {</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">shapesHashMap </span><span class="s2">= </span><span class="s1">shapesHashMap</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Returns the file path for HTML format command logging.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@return </span><span class="s3">the HTML log file path</span>
+     <span class="s3">*/</span>
+    <span class="s0">public </span><span class="s1">String getHtmlPath</span><span class="s2">() {</span>
+        <span class="s0">return </span><span class="s1">htmlPath</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Sets the file path for HTML format command logging.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@param </span><span class="s3">htmlPath the new HTML log file path</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">setHtmlPath</span><span class="s2">(</span><span class="s1">String htmlPath</span><span class="s2">) {</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">htmlPath </span><span class="s2">= </span><span class="s1">htmlPath</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Returns the file path for plain text format command logging.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@return </span><span class="s3">the text log file path</span>
+     <span class="s3">*/</span>
+    <span class="s0">public </span><span class="s1">String getTxtPath</span><span class="s2">() {</span>
+        <span class="s0">return </span><span class="s1">txtPath</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Sets the file path for plain text format command logging.</span>
+     <span class="s3">*</span>
+     <span class="s3">* </span><span class="s4">@param </span><span class="s3">txtPath the new text log file path</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">setTxtPath</span><span class="s2">(</span><span class="s1">String txtPath</span><span class="s2">) {</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">txtPath </span><span class="s2">= </span><span class="s1">txtPath</span><span class="s2">;</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

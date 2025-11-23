@@ -141,13 +141,13 @@ public class Clevis {
                     for (int i = 2; i < c.length; i++) {
                         Shape tempShape = getShapesHashMap().get(c[i]);
                         if(tempShape == null){
-                            System.out.println(STR."Error: Shape \{c[i]} not found");
+                            System.out.printf("Error: Shape %s not found%n", c[i]);
                             hasError = true;
                             break;
                         }
                         for (int j = i + 1; j < c.length; j++) {
                             if (tempShape.getName().equals(c[j])) {
-                                System.out.println(STR."Error: Duplicate shape name '\{tempShape.getName()}' in group command");
+                                System.out.printf("Error: Duplicate shape name '%s' in group command%n", tempShape.getName());
                                 hasError = true;
                                 break;
                             }
@@ -160,7 +160,7 @@ public class Clevis {
                     if (!hasError) {
                         ShapeGroup newGroup = new ShapeGroup(c[1], shapes);
                         getShapesHashMap().put(c[1], newGroup);
-                        System.out.println(STR."Successfully created group \{c[1]}");
+                        System.out.printf("Successfully created group %s%n", c[1]);
                         undoStack.push("group " + c[1] + Arrays.toString(newGroup.getShapesString()));
                         redoStack.clear();
                     }
@@ -188,7 +188,7 @@ public class Clevis {
                         break;
                     }
                     if (!getShapesHashMap().containsKey(c[1])) {
-                        System.out.println(STR."Error: Shape \{c[1]} not found");
+                        System.out.printf("Error: Shape %s not found%n", c[1]);
                         break;
                     }
                     Shape shapeToDelete = getShapesHashMap().get(c[1]);
@@ -206,7 +206,7 @@ public class Clevis {
                         break;
                     }
                     if (!getShapesHashMap().containsKey(c[1])) {
-                        System.out.println(STR."Error: Shape \{c[1]} not found");
+                        System.out.printf("Error: Shape %s not found%n", c[1]);
                         break;
                     }
                     getShapesHashMap().get(c[1]).outputBoundingBox();
@@ -217,7 +217,7 @@ public class Clevis {
                         break;
                     }
                     if (!getShapesHashMap().containsKey(c[1])) {
-                        System.out.println(STR."Error: Shape with name \{c[1]} not found");
+                        System.out.printf("Error: Shape with name %s not found%n", c[1]);
                         break;
                     }
                     Shape moveShape =  getShapesHashMap().get(c[1]);
@@ -243,7 +243,7 @@ public class Clevis {
                         }
                     }
                     if (res != null) System.out.println(res.getName());
-                    else System.out.println(STR."Error: No shape covering \{x} \{y} found");
+                    else System.out.printf("Error: No shape covering %s %s found%n", x, y);
                     break;
                 case "intersect":
                     if (c.length < 3) {
@@ -253,15 +253,15 @@ public class Clevis {
                     Shape shape1 = getShapesHashMap().get(n1);
                     Shape shape2 = getShapesHashMap().get(n2);
                     if (shape1 == null || shape2 == null) {
-                        System.out.println(STR."Error: Shape \{n1} or \{n2} not found");
+                        System.out.printf("Error: Shape %s or %s not found%n", n1, n2);
                         break;
                     }
                     boolean intersects = shape1.getBoundingBox().overlaps(shape2.getBoundingBox());
                     if (!intersects) {
-                        System.out.println(STR."The shape \{c[1]}and \{c[2]} does not intersect");
+                        System.out.printf("The shapes %s and %s do intersect%n", c[1], c[2]);
                     }
                     else {
-                        System.out.println(STR."The shape \{c[1]}and \{c[2]} does intersect");
+                        System.out.printf("The shapes %s and %s do not intersect%n", c[1], c[2]);
                     }
                     break;
                 case "list":
